@@ -1,0 +1,32 @@
+*******************************************************************************
+* OpenKVI releasenote                                                         *
+*******************************************************************************
+VERSION : 2.0.0-1
+DATE : 2016-04-26
+
+New Features:
+-------------
+~ First openkvi package for CentOS 7
+
+Fixed Bugs:
+-----------
+None
+
+Known Bugs:
+-----------
+- GPXE limitation: when using two (or more) virtio vNIC it's not possible to
+  select which Nic to boot on. GPXE will always try the virtual NICs in the
+  order of their PCI number. 
+  To work around this you'll have to disconnect the vNICs comming before the
+  vNIC you want to boot on. 
+
+Install Notes:
+--------------
+rpm -ivh openkvi-....rpm
+
+Ugrade Notes:
+-------------
+You can upgrade to this version with:
+rpm -Uvh openkvi-...rpm
+
+

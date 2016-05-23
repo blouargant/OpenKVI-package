@@ -1,0 +1,166 @@
+#!/bin/sh
+#
+# chkconfig: 345 91 9
+# description: Starts and stops the nodemanager daemon \
+#	       used to provide Libvirt interface to OpenKVI web app.
+#
+### BEGIN INIT INFO
+# Provides: nodemanager, a libvirt backend
+# Default-Start: 3 4 5
+# Short-Description: ovnmanager daemon
+# Description: Starts and stops the nodemanager daemon
+#              used to provide Libvirt interface to OpenKVI web app.
+### END INIT INFO
+
+# Source function library.
+if [ -f /etc/init.d/functions ] ; then
+  . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ] ; then
+  . /etc/rc.d/init.d/functions
+else
+  exit 0
+fi
+
+RETVAL=0
+progname="nodemanagerd"
+LOCK_FILE=/var/lock/subsys/nodemanager
+PID_FILE=/var/run/nodemanagerd.pid
+PID_MONITOR=/var/run/monitor_nodemanagerd.pid
+VNM=/usr/bin/nodemanager/nodemanager.py
+MONITOR=/usr/bin/nodemanager/monitor_nodemanagerd.sh
+
+# nodemanager configuration.
+CONFIG=/etc/nodemanager/nodemanager.conf
+
+# Check that nodemanager.conf exists.
+[ -f /etc/nodemanager/nodemanager.conf ] || exit 0
+
+mkdir -p /etc/nodemanager/shellinabox
+
+RETVAL=0
+source $CONFIG
+DEBUGDIR=$(echo ${log_debug%\/*})
+mkdir -p $DEBUGDIR
+
+clear_tunnels() {
+	if [ -e "/bin/netstat" ]; then
+		TUNNELS=$(netstat -pantu | grep "0.0.0.0:4[2-3][0-9]\{2\}" | grep "LISTEN" | grep shellinaboxd | sed -e "s/.shellinaboxd//" | awk '{print $7}')
+	else
+		TUNNELS=$(ss -pantu | grep ":4[2-3][0-9]\{2\}" | grep "LISTEN" | grep shellinaboxd | sed -e "s/.*pid=//" | sed -e "s/,.*//")
+	fi
+	if [ "$TUNNELS" ]; then
+		for aPID in $TUNNELS; do
+			kill -9 $aPID 1>/dev/null 2>&1
+		done
+	fi
+	SSHTUNNELS=$(ps fax | grep "ssh -f root@.* -N -L [0-9]\{5\}:127.0.0.1:[0-9]\{4\}" | sed -e "s/^ *//" | sed -e "s/ .*//")
+	if [ "$SSHTUNNELS" ]; then
+		for aPID in $SSHTUNNELS; do
+			kill -9 $aPID 1>/dev/null 2>&1
+		done
+	fi
+}
+
+startall() {
+	
+	echo "" > $log_debug
+	$VNM $CONFIG 1>>$log_debug 2>&1 &
+	PID=$(ps fax | grep nodemanager.py | grep -v "grep" | sed -e "s/^ *//" | sed -e "s/ .*//")
+	if [ "$PID" ]; then
+		echo $PID > $PID_FILE
+		sh $MONITOR &
+		MONPID=$(ps fax | grep monitor_nodemanagerd.sh | grep -v "grep" | sed -e "s/^ *//" | sed -e "s/ .*//")
+		echo $MONPID > $PID_MONITOR
+		return 0
+	else 
+		return 1
+	fi
+}
+
+start() {
+	# Replace OpenKVI icon
+	TOMCAT_PATH="/usr/share/tomcat"
+	if [ -d "/usr/share/tomcat6" ]; then
+		TOMCAT_PATH="/usr/share/tomcat6"
+	fi
+	if [ -e $TOMCAT_PATH/webapps/openkvi ]; then
+		while [ ! -e $TOMCAT_PATH/webapps/openkvi/lib/boot/images/favicon.ico ]; do
+			sleep 5
+		done
+		cp -f /usr/local/openkvi/favicon.ico $TOMCAT_PATH/webapps/openkvi/lib/boot/images/favicon.ico
+	fi
+	# stop all VNC websockets
+	ps fax | grep "websockify -D" | grep -v "grep" | sed -e "s/^ *\([0-9]*\) .*/\1/" | xargs -i -t kill -9 {} 2>/dev/null
+	clear_tunnels
+	
+	printf "Starting $progname: "
+	
+	SHELLINABOX=$(ps fax | grep "shellinaboxd" | grep "..port=4[2-3][0-9]\{2\}" | sed -e "s/^ *//" | sed -e "s/ .*//")
+	if [ "$SHELLINABOX" ]; then
+		kill -9 "$SHELLINABOX" 1>/dev/null 2>&1
+	fi
+	startall && success || failure
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && touch $LOCK_FILE 
+	echo
+	return $RETVAL
+}
+
+stop() {
+	clear_tunnels
+	
+	MONPID=$(ps fax | grep -v "grep" | grep "monitor_nodemanagerd.sh" | sed -e "s/^ *//" | sed -e "s/ .*//")
+	kill -9 $MONPID 1>/dev/null 2>&1
+	printf "Shutting down $progname: "
+	killproc nodemanager.py
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $LOCK_FILE && rm -f $PID_FILE
+	return $RETVAL
+}
+
+restart() {
+	stop
+	sleep 4
+	start
+}
+reload() {
+	sleep 5
+	restart
+}	
+checkstatus() {
+	status -p $PID_FILE $progname
+}
+
+quietstatus() {
+	status -p $PID_FILE >/dev/null 2>&1
+}
+
+case "$1" in
+	start)
+		quietstatus && exit 0
+		start
+	;;
+	stop)
+		if ! quietstatus; then
+			rm -f $LOCK_FILE
+			rm -f $PID_FILE
+			exit 0
+		fi
+		stop
+	;;
+	restart)
+		restart
+	;;
+	reload)
+		reload
+	;;
+	status)
+		checkstatus
+	;;
+	*)
+		printf "Usage: %s {start|stop|restart|status}\n" "$0"
+		exit 1
+esac
+
+exit $?

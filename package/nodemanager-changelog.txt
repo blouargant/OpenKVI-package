@@ -1,0 +1,199 @@
+ *****************************************************************************
+* nodes_manager releasenote                                                   *
+ *****************************************************************************
+VERSION : 1.0.2-1
+DATE : 2013-03-21
+
+New Features:
+-------------
+
+Fixed Bugs:
+-----------
+- Corrected a problem on dependencies.
+
+Known Bugs:
+-----------
+
+
+ *****************************************************************************
+* nodes_manager releasenote                                                   *
+ *****************************************************************************
+VERSION : 1.0.0-1
+DATE : 2013-03-21
+
+New Features:
+-------------
+- First stable release
+
+Fixed Bugs:
+-----------
+
+Known Bugs:
+-----------
+
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.4.0-1
+DATE : 2013-03-11
+
+New Features:
+-------------
+- Added support for CPU, memory and disk monitoring on KVM nodes
+
+Fixed Bugs:
+-----------
+- Corrected some errors when migrating a stopped VM.
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.2.1-1
+DATE : 2013-02-20
+
+New Features:
+-------------
+
+Fixed Bugs:
+-----------
+- Remove potential keys in .ssh/known_hosts when adding a new node
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.2.0-1
+DATE : 2012-12-14
+
+New Features:
+-------------
+- Changed OpenKVI communication channel by a TCP link
+- Added Migration between nodes without without shared storages nor direct
+  nework connection. 
+
+Fixed Bugs:
+-----------
+- Finished Snapshot support
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.1.0-1
+DATE : 2012-11-15
+
+New Features:
+-------------
+- Added partial SNAPSHOT support
+- Added a new GENERAL section to allow OpenKVI to restart tomcat6
+
+Fixed Bugs:
+-----------
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.0.4-2
+DATE : 2012-06-28
+
+New Features:
+-------------
+
+Fixed Bugs:
+-----------
+- A libvirt connection was started for each connection demand from openkvi
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.0.4-1
+DATE : 2012-06-18
+
+New Features:
+-------------
+- Added keepAlive and connection lost management
+
+Fixed Bugs:
+-----------
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.0.3-1
+DATE : 2012-06-15
+
+New Features:
+-------------
+- Improved stability by using libvirtlistener in mono-threaded mode
+  as libvirt.virEventRegisterDefaultImpl is already multi-threaded
+
+Fixed Bugs:
+-----------
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.0.2-2
+DATE : 2012-06-05
+
+New Features:
+-------------
+
+Fixed Bugs:
+-----------
+- Corrected an error on migration process
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.0.2-1
+DATE : 2012-06-05
+
+New Features:
+-------------
+- Added a Read-Write lock to increase performances
+
+Fixed Bugs:
+-----------
+
+Known Bugs:
+-----------
+
+ ******************************************************************************
+* nodes_manager releasenote                                                    *
+ ******************************************************************************
+VERSION : 0.0.1-1
+DATE : 2012-06-04
+
+New Features:
+-------------
+- Initial packaging
+
+Fixed Bugs:
+-----------
+
+Known Bugs:
+-----------
